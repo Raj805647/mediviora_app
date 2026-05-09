@@ -30,6 +30,13 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  base_module:
+    path: ./provider_base_module
+  flutter_screenutil: ^5.9.3
+  dropdown_button2: ^2.3.9
+  intl: ^0.20.2
+  lottie: ^3.3.2
+  fl_chart: ^1.2.0
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
