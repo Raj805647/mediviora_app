@@ -1,5 +1,5 @@
 import '../features/auth/splash/splash_provider.dart';
-im
+import 'package:provider/provider.dart';
 
 class ProviderConfig {
   static List<ChangeNotifierProvider> providers = [
