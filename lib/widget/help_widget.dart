@@ -14,3 +14,32 @@ LinearGradient customGradientDesign() {
   );
 }
 
+Widget glassContainer({
+  required Widget child,
+  EdgeInsetsGeometry? padding,
+  double radius = 24,
+}) {
+  return Container(
+    padding: padding,
+
+    decoration: BoxDecoration(
+      borderRadius: BorderRadius.circular(radius),
+
+      color: Colors.white.withOpacity(0.72),
+
+      border: Border.all(
+        color: Colors.white.withOpacity(0.5),
+      ),
+
+      boxShadow: [
+        BoxShadow(
+          color: Colors.black.withOpacity(0.04),
+          blurRadius: 20,
+          offset: const Offset(0, 10),
+        ),
+      ],
+    ),
+
+    child: child,
+  );
+}

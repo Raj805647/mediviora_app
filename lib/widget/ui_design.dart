@@ -1,67 +1,52 @@
 import 'package:flutter/material.dart';
 
-class AppGradientBackground extends StatelessWidget {
-  final Widget? child;
-  final bool showGlowEffect;
-
-  const AppGradientBackground({
-    super.key,
-    this.child,
-    this.showGlowEffect = true,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        /// Main Gradient
-        Container(
-          decoration: const BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              colors: [
-                Color(0xFFB9E4D5),
-                Color(0xFF90C3A9),
-                Color(0xFF8FAFD1),
-              ],
-            ),
+Widget appBackground() {
+  return Stack(
+    children: [
+      /// GRADIENT BACKGROUND
+      Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            colors: [
+              Color(0xFFF8FAFC),
+              Color(0xFFD9F3FF),
+              Color(0xFFF3F0FF),
+            ],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
           ),
         ),
+      ),
 
-        /// Soft Glow Overlay
-        if (showGlowEffect)
-          Positioned(
-            top: -80,
-            right: -50,
-            child: Container(
-              width: 220,
-              height: 220,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: Colors.white.withOpacity(0.18),
-              ),
-            ),
+      /// TOP GLOW
+      Positioned(
+        top: -100,
+        right: -100,
+        child: AnimatedContainer(
+          duration: const Duration(seconds: 3),
+          width: 300,
+          height: 300,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: const Color(0xFF00D1FF).withOpacity(0.1),
           ),
+        ),
+      ),
 
-        /// Bottom Glow
-        if (showGlowEffect)
-          Positioned(
-            bottom: -100,
-            left: -60,
-            child: Container(
-              width: 260,
-              height: 260,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: Colors.white.withOpacity(0.12),
-              ),
-            ),
+      /// BOTTOM GLOW
+      Positioned(
+        bottom: -100,
+        left: -100,
+        child: AnimatedContainer(
+          duration: const Duration(seconds: 3),
+          width: 300,
+          height: 300,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: const Color(0xFF8B7CFF).withOpacity(0.1),
           ),
-
-        /// Optional Child Content
-        if (child != null) child!,
-      ],
-    );
-  }
+        ),
+      ),
+    ],
+  );
 }

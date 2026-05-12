@@ -1,303 +1,213 @@
 import 'package:flutter/material.dart';
+import 'package:mediviora_app/core/constants/app_images.dart';
 
-import 'dart:math';
-import 'package:flutter/material.dart';
 import 'package:mediviora_app/features/auth/splash/splash_provider.dart';
 import 'package:provider/provider.dart';
 
-/// -------------------- BASE PROVIDER --------------------
-/// -------------------- SPLASH SCREEN --------------------
-class SplashScreen extends StatelessWidget {
+import '../../../widget/help_widget.dart';
+
+class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (_) => SplashProvider(),
-      child: const _SplashView(),
-    );
-  }
+  State<SplashScreen> createState() => _SplashScreenState();
 }
 
-/// -------------------- SPLASH VIEW --------------------
-class _SplashView extends StatelessWidget {
-  const _SplashView();
+class _SplashScreenState extends State<SplashScreen>
+    with TickerProviderStateMixin {
+
+  late final AnimationController backgroundController;
+  late final AnimationController sparkleController;
+  late final AnimationController dotsController;
+
+  final List<AnimationController> particleControllers = [];
+
+  @override
+  void initState() {
+    super.initState();
+
+    /// Navigation
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<SplashProvider>().init(context);
+    });
+
+    /// Background Animation
+    backgroundController = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 8),
+    )..repeat(reverse: true);
+
+    /// Sparkle Rotation
+    sparkleController = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 4),
+    )..repeat();
+
+    /// Loading Dots
+    dotsController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1500),
+    )..repeat(reverse: true);
+
+    /// Particle Controllers
+    final provider = context.read<SplashProvider>();
+
+    for (var particle in provider.generateParticles(30)) {
+      final controller = AnimationController(
+        vsync: this,
+        duration: Duration(
+          milliseconds: (particle.duration * 1000).toInt(),
+        ),
+      )..repeat(reverse: true);
+
+      particleControllers.add(controller);
+    }
+  }
+
+  @override
+  void dispose() {
+    backgroundController.dispose();
+    sparkleController.dispose();
+    dotsController.dispose();
+
+    for (var controller in particleControllers) {
+      controller.dispose();
+    }
+
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    final provider = Provider.of<SplashProvider>(context, listen: false);
+    final provider = context.read<SplashProvider>();
     final particles = provider.generateParticles(30);
 
     return Scaffold(
       body: Stack(
         children: [
-          /// Background Gradient
-          Container(
-            decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                colors: [
-                  Color(0xFF0B1F3A),
-                  Color(0xFF00D1FF),
-                  Color(0xFF8B7CFF),
-                ],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
-            ),
-          ),
 
-          /// Animated Mesh Circles
-          const Positioned.fill(
-            child: _AnimatedBackground(),
-          ),
+          /// Background Gradient
+          _backgroundGradient(),
+
+          /// Animated Background
+          _animatedBackground(),
 
           /// Floating Particles
-          ...particles.map((particle) => _FloatingParticle(
-            particle: particle,
-          )),
+          ...List.generate(
+            particles.length,
+                (index) => _floatingParticle(
+              particles[index],
+              particleControllers[index],
+            ),
+          ),
 
           /// Main Content
-          Center(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                /// Glow + Logo
-                TweenAnimationBuilder<double>(
-                  tween: Tween(begin: 0.0, end: 1.0),
-                  duration: const Duration(milliseconds: 1200),
-                  curve: Curves.elasticOut,
-                  builder: (context, value, child) {
-                    return Transform.scale(
-                      scale: value,
-                      child: Opacity(
-                        opacity: value,
-                        child: child,
-                      ),
-                    );
-                  },
-                  child: Stack(
-                    alignment: Alignment.center,
-                    children: [
-                      /// Glow
-                      AnimatedContainer(
-                        duration: const Duration(seconds: 3),
-                        width: 280,
-                        height: 280,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          boxShadow: [
-                            BoxShadow(
-                              color: const Color(0xFF00D1FF)
-                                  .withOpacity(0.4),
-                              blurRadius: 60,
-                              spreadRadius: 20,
-                            ),
-                          ],
-                        ),
-                      ),
-
-                      /// Logo
-                      Column(
-                        children: [
-                          Stack(
-                            clipBehavior: Clip.none,
-                            children: [
-                              /// Logo Glow
-                              Container(
-                                width: 220,
-                                height: 220,
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  color: Colors.white.withOpacity(0.08),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.white.withOpacity(0.25),
-                                      blurRadius: 80,
-                                      spreadRadius: 10,
-                                    ),
-                                  ],
-                                ),
-                              ),
-
-                              /// Image
-                              Positioned.fill(
-                                child: Padding(
-                                  padding: const EdgeInsets.all(20),
-                                  child: Image.asset(
-                                    "assets/image.png",
-                                    fit: BoxFit.contain,
-                                  ),
-                                ),
-                              ),
-
-                              /// Sparkle Icon
-                              const Positioned(
-                                top: -10,
-                                right: -10,
-                                child: _RotatingSparkle(),
-                              ),
-                            ],
-                          ),
-
-                          const SizedBox(height: 40),
-
-                          /// Subtitle
-                          const Text(
-                            "Connecting Healthcare Worldwide",
-                            style: TextStyle(
-                              color: Colors.white70,
-                              fontSize: 18,
-                              fontWeight: FontWeight.w500,
-                              letterSpacing: 0.8,
-                            ),
-                          ),
-
-                          const SizedBox(height: 30),
-
-                          /// Loading Dots
-                          const _LoadingDots(),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
+          _mainContent(),
 
           /// Bottom Fade
-          Align(
-            alignment: Alignment.bottomCenter,
-            child: Container(
-              height: 120,
-              decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    Color(0xFF0B1F3A),
-                    Colors.transparent,
-                  ],
-                  begin: Alignment.bottomCenter,
-                  end: Alignment.topCenter,
-                ),
-              ),
-            ),
-          ),
+          _bottomFade(),
         ],
       ),
     );
   }
-}
 
-/// -------------------- ANIMATED BACKGROUND --------------------
-class _AnimatedBackground extends StatefulWidget {
-  const _AnimatedBackground();
+  /// =====================================================
+  /// BACKGROUND
+  /// =====================================================
 
-  @override
-  State<_AnimatedBackground> createState() => _AnimatedBackgroundState();
-}
-
-class _AnimatedBackgroundState extends State<_AnimatedBackground>
-    with TickerProviderStateMixin {
-  late final AnimationController controller;
-
-  @override
-  void initState() {
-    super.initState();
-
-    controller = AnimationController(
-      vsync: this,
-      duration: const Duration(seconds: 8),
-    )..repeat(reverse: true);
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return AnimatedBuilder(
-      animation: controller,
-      builder: (context, child) {
-        return Stack(
-          children: [
-            Positioned(
-              left: 40 + controller.value * 20,
-              top: 100 + controller.value * 20,
-              child: Container(
-                width: 260,
-                height: 260,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: const Color(0xFF00D1FF).withOpacity(0.15),
-                ),
-              ),
-            ),
-            Positioned(
-              right: 40 + controller.value * 20,
-              bottom: 120 + controller.value * 20,
-              child: Container(
-                width: 220,
-                height: 220,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: const Color(0xFF8B7CFF).withOpacity(0.18),
-                ),
-              ),
-            ),
+  Widget _backgroundGradient() {
+    return Container(
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            Color(0xFF0B1F3A),
+            Color(0xFF00D1FF),
+            Color(0xFF8B7CFF),
           ],
-        );
-      },
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+      ),
     );
   }
 
-  @override
-  void dispose() {
-    controller.dispose();
-    super.dispose();
-  }
-}
+  /// =====================================================
+  /// ANIMATED BACKGROUND
+  /// =====================================================
 
-/// -------------------- FLOATING PARTICLE --------------------
-class _FloatingParticle extends StatefulWidget {
-  final ParticleModel particle;
+  Widget _animatedBackground() {
+    return Positioned.fill(
+      child: AnimatedBuilder(
+        animation: backgroundController,
+        builder: (_, __) {
+          return Stack(
+            children: [
 
-  const _FloatingParticle({
-    required this.particle,
-  });
+              /// Left Circle
+              Positioned(
+                left: 40 + backgroundController.value * 20,
+                top: 100 + backgroundController.value * 20,
+                child: _animatedCircle(
+                  size: 260,
+                  color: const Color(0xFF00D1FF).withOpacity(0.15),
+                ),
+              ),
 
-  @override
-  State<_FloatingParticle> createState() => _FloatingParticleState();
-}
-
-class _FloatingParticleState extends State<_FloatingParticle>
-    with SingleTickerProviderStateMixin {
-  late final AnimationController controller;
-
-  @override
-  void initState() {
-    super.initState();
-
-    controller = AnimationController(
-      vsync: this,
-      duration: Duration(
-        milliseconds: (widget.particle.duration * 1000).toInt(),
+              /// Right Circle
+              Positioned(
+                right: 40 + backgroundController.value * 20,
+                bottom: 120 + backgroundController.value * 20,
+                child: _animatedCircle(
+                  size: 220,
+                  color: const Color(0xFF8B7CFF).withOpacity(0.18),
+                ),
+              ),
+            ],
+          );
+        },
       ),
-    )..repeat(reverse: true);
+    );
   }
 
-  @override
-  Widget build(BuildContext context) {
+  Widget _animatedCircle({
+    required double size,
+    required Color color,
+  }) {
+    return Container(
+      width: size,
+      height: size,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        color: color,
+      ),
+    );
+  }
+
+  /// =====================================================
+  /// FLOATING PARTICLES
+  /// =====================================================
+
+  Widget _floatingParticle(
+      ParticleModel particle,
+      AnimationController controller,
+      ) {
     final size = MediaQuery.of(context).size;
 
     return AnimatedBuilder(
       animation: controller,
-      builder: (context, child) {
+      builder: (_, __) {
         return Positioned(
-          left: widget.particle.left * size.width,
-          top: (widget.particle.top * size.height) -
+          left: particle.left * size.width,
+          top: (particle.top * size.height) -
               (controller.value * 40),
+
           child: Opacity(
-            opacity: 0.2 + (controller.value * 0.8),
+            opacity: (0.2 + controller.value * 0.8)
+                .clamp(0.0, 1.0),
+
             child: Container(
-              width: widget.particle.size,
-              height: widget.particle.size,
+              width: particle.size,
+              height: particle.size,
               decoration: const BoxDecoration(
                 color: Colors.white,
                 shape: BoxShape.circle,
@@ -309,128 +219,227 @@ class _FloatingParticleState extends State<_FloatingParticle>
     );
   }
 
-  @override
-  void dispose() {
-    controller.dispose();
-    super.dispose();
-  }
-}
+  /// =====================================================
+  /// MAIN CONTENT
+  /// =====================================================
 
-/// -------------------- ROTATING SPARKLE --------------------
-class _RotatingSparkle extends StatefulWidget {
-  const _RotatingSparkle();
+  Widget _mainContent() {
+    return Center(
+      child: SingleChildScrollView(
+        child: TweenAnimationBuilder<double>(
+          tween: Tween(begin: 0.0, end: 1.0),
+          duration: const Duration(milliseconds: 1200),
+          curve: Curves.elasticOut,
 
-  @override
-  State<_RotatingSparkle> createState() => _RotatingSparkleState();
-}
+          builder: (context, value, child) {
+            return Transform.scale(
+              scale: value,
 
-class _RotatingSparkleState extends State<_RotatingSparkle>
-    with SingleTickerProviderStateMixin {
-  late final AnimationController controller;
+              child: Opacity(
+                opacity: value.clamp(0.0, 1.0),
+                child: child,
+              ),
+            );
+          },
 
-  @override
-  void initState() {
-    super.initState();
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
 
-    controller = AnimationController(
-      vsync: this,
-      duration: const Duration(seconds: 4),
-    )..repeat();
-  }
+              /// Logo Section
+              _logoSection(),
 
-  @override
-  Widget build(BuildContext context) {
-    return RotationTransition(
-      turns: controller,
-      child: const Icon(
-        Icons.auto_awesome,
-        color: Colors.white,
-        size: 32,
+              spaceHeight(40),
+
+              /// Subtitle
+              const Text(
+                "Connecting Healthcare Worldwide",
+                style: TextStyle(
+                  color: Colors.white70,
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: 0.8,
+                ),
+              ),
+
+              spaceHeight(30),
+
+              /// Loading Dots
+              _loadingDots(),
+            ],
+          ),
+        ),
       ),
     );
   }
 
-  @override
-  void dispose() {
-    controller.dispose();
-    super.dispose();
+  /// =====================================================
+  /// LOGO SECTION
+  /// =====================================================
+
+  Widget _logoSection() {
+    return Stack(
+      alignment: Alignment.center,
+      children: [
+
+        /// Glow
+        AnimatedContainer(
+          duration: const Duration(seconds: 3),
+          width: 280,
+          height: 280,
+
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+
+            boxShadow: [
+              BoxShadow(
+                color: const Color(0xFF00D1FF)
+                    .withOpacity(0.4),
+                blurRadius: 60,
+                spreadRadius: 20,
+              ),
+            ],
+          ),
+        ),
+
+        /// Logo
+        Stack(
+          clipBehavior: Clip.none,
+          children: [
+
+            /// Logo Glow
+            Container(
+              width: 220,
+              height: 220,
+
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: Colors.white.withOpacity(0.08),
+
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.white.withOpacity(0.25),
+                    blurRadius: 80,
+                    spreadRadius: 10,
+                  ),
+                ],
+              ),
+            ),
+
+            /// Image
+            Positioned.fill(
+              child: Padding(
+                padding: const EdgeInsets.all(20),
+
+                child: Image.asset(
+                  AppImages.appLogo,
+                  fit: BoxFit.contain,
+                ),
+              ),
+            ),
+
+            /// Sparkle
+            Positioned(
+              top: -10,
+              right: -10,
+              child: RotationTransition(
+                turns: sparkleController,
+
+                child: const Icon(
+                  Icons.auto_awesome,
+                  color: Colors.white,
+                  size: 32,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
   }
-}
 
-/// -------------------- LOADING DOTS --------------------
-class _LoadingDots extends StatelessWidget {
-  const _LoadingDots();
+  /// =====================================================
+  /// LOADING DOTS
+  /// =====================================================
 
-  @override
-  Widget build(BuildContext context) {
+  Widget _loadingDots() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
+
       children: List.generate(
         4,
-            (index) => _AnimatedDot(delay: index * 0.2),
+            (index) => _animatedDot(index),
       ),
     );
   }
-}
 
-class _AnimatedDot extends StatefulWidget {
-  final double delay;
-
-  const _AnimatedDot({
-    required this.delay,
-  });
-
-  @override
-  State<_AnimatedDot> createState() => _AnimatedDotState();
-}
-
-class _AnimatedDotState extends State<_AnimatedDot>
-    with SingleTickerProviderStateMixin {
-  late final AnimationController controller;
-
-  @override
-  void initState() {
-    super.initState();
-
-    controller = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 1500),
-    )..repeat(reverse: true);
-  }
-
-  @override
-  Widget build(BuildContext context) {
+  Widget _animatedDot(int index) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 4),
-      child: ScaleTransition(
-        scale: Tween(begin: 1.0, end: 1.5).animate(
-          CurvedAnimation(
-            parent: controller,
-            curve: Interval(
-              widget.delay,
-              1.0,
-              curve: Curves.easeInOut,
+
+      child: AnimatedBuilder(
+        animation: dotsController,
+
+        builder: (_, __) {
+
+          final animationValue =
+          Tween(begin: 1.0, end: 1.5).evaluate(
+            CurvedAnimation(
+              parent: dotsController,
+              curve: Interval(
+                index * 0.2,
+                1.0,
+                curve: Curves.easeInOut,
+              ),
             ),
-          ),
-        ),
-        child: FadeTransition(
-          opacity: Tween(begin: 0.4, end: 1.0).animate(controller),
-          child: Container(
-            width: 10,
-            height: 10,
-            decoration: const BoxDecoration(
-              color: Colors.white,
-              shape: BoxShape.circle,
+          );
+
+          return Transform.scale(
+            scale: animationValue,
+
+            child: Opacity(
+              opacity: (0.4 + dotsController.value * 0.6)
+                  .clamp(0.0, 1.0),
+
+              child: Container(
+                width: 10,
+                height: 10,
+
+                decoration: const BoxDecoration(
+                  color: Colors.white,
+                  shape: BoxShape.circle,
+                ),
+              ),
             ),
-          ),
-        ),
+          );
+        },
       ),
     );
   }
 
-  @override
-  void dispose() {
-    controller.dispose();
-    super.dispose();
+  /// =====================================================
+  /// BOTTOM FADE
+  /// =====================================================
+
+  Widget _bottomFade() {
+    return Align(
+      alignment: Alignment.bottomCenter,
+
+      child: Container(
+        height: 120,
+
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            colors: [
+              Color(0xFF0B1F3A),
+              Colors.transparent,
+            ],
+
+            begin: Alignment.bottomCenter,
+            end: Alignment.topCenter,
+          ),
+        ),
+      ),
+    );
   }
 }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:mediviora_app/routes/app_routes.dart';
 import 'package:mediviora_app/routes/route_names.dart';
 
@@ -13,14 +14,12 @@ class MedivioraApp extends StatelessWidget {
     return SafeArea(
       child: MultiProvider(
         providers: ProviderConfig.providers,
-        child: MaterialApp(
+        child: MaterialApp.router(
           debugShowCheckedModeBanner: false,
-          title: 'Grownidhi App',
-          initialRoute: RouteNames.splashScreen,
-          routes: AppRoutes.routes,
-      
+          title: 'Mediviora App',
+         routerConfig: AppRoutes.router,
           theme: ThemeData(
-            fontFamily: 'Iosef',
+            textTheme: GoogleFonts.ubuntuTextTheme(),
           ),
         ),
       ),

@@ -1,15 +1,28 @@
+import 'dart:async';
 import 'dart:math';
-
+import 'package:flutter/material.dart';
 import 'package:base_module/providers/base_providers.dart';
+import 'package:mediviora_app/routes/route_names.dart';
 
-/// -------------------- SPLASH PROVIDER --------------------
 class SplashProvider extends BaseProvider {
   final Random _random = Random();
+  late final AnimationController backgroundController;
+  late final AnimationController sparkleController;
+  late final AnimationController dotsController;
+
+  final List<AnimationController> particleControllers = [];
+
+  void init(BuildContext context) {
+    Timer(const Duration(seconds: 3), () {
+      print('adbfhdsaf');
+      navigateAndClearStack(context, RouteNames.onBoardingScreen);
+    });
+  }
 
   List<ParticleModel> generateParticles(int count) {
     return List.generate(
       count,
-          (index) => ParticleModel(
+      (index) => ParticleModel(
         left: _random.nextDouble(),
         top: _random.nextDouble(),
         size: 2 + _random.nextDouble() * 4,
@@ -20,7 +33,6 @@ class SplashProvider extends BaseProvider {
   }
 }
 
-/// -------------------- PARTICLE MODEL --------------------
 class ParticleModel {
   final double left;
   final double top;

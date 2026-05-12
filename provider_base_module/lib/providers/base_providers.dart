@@ -1,5 +1,6 @@
 import 'package:base_module/base_module.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import '../repositories/auth_repository.dart';
 
 import 'package:flutter/material.dart';
@@ -43,35 +44,46 @@ class BaseProvider with ChangeNotifier {
     }
   }
 
+  /// Push Screen
   void navigateTo(
       BuildContext context,
       String route, {
-        Object? arguments,
+        Object? extra,
       }) {
-    Navigator.pushNamed(
-      context,
+    context.push(
       route,
-      arguments: arguments,
+      extra: extra,
     );
   }
 
+  /// Replace Current Screen
+  void navigateReplace(
+      BuildContext context,
+      String route, {
+        Object? extra,
+      }) {
+    context.go(
+      route,
+      extra: extra,
+    );
+  }
+
+  /// Clear Stack & Navigate
   void navigateAndClearStack(
       BuildContext context,
       String route, {
-        Object? arguments,
+        Object? extra,
       }) {
-    Navigator.pushNamedAndRemoveUntil(
-      context,
+    context.go(
       route,
-          (route) => false,
-      arguments: arguments,
+      extra: extra,
     );
   }
 
-
+  /// Back
   void back(BuildContext context) {
-    Navigator.pop(context);
+    context.pop();
   }
-
-
 }
+
+

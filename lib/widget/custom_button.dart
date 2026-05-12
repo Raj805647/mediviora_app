@@ -2,73 +2,103 @@ import 'package:flutter/material.dart';
 
 import 'help_widget.dart';
 
-class CustomLoadingButton extends StatelessWidget {
-  final bool isLoading;
-  final VoidCallback? onTap;
-  final String text;
-  final String loadingText;
-  final double height;
-  final BorderRadius? borderRadius;
+Widget customGradientButton({
+  required String text,
+  required VoidCallback? onTap,
+  bool isLoading = false,
+  double height = 56,
+  double radius = 18,
 
-  const CustomLoadingButton({
-    super.key,
-    required this.isLoading,
-    required this.onTap,
-    required this.text,
-    this.loadingText = "Loading...",
-    this.height = 50,
-    this.borderRadius,
-  });
+  /// OPTIONAL ICON
+  IconData? icon,
 
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: isLoading ? null : onTap,
-      child: Container(
-        height: height,
-        width: double.infinity,
-        decoration: BoxDecoration(
-          borderRadius: borderRadius ?? BorderRadius.circular(30),
-          gradient: customGradientDesign(),
+  List<Color> colors = const [
+    Color(0xFF00D1FF),
+    Color(0xFF8B7CFF),
+  ],
+}) {
+  return SizedBox(
+    width: double.infinity,
+    height: height,
+
+    child: ElevatedButton(
+      onPressed: isLoading ? null : onTap,
+
+      style: ElevatedButton.styleFrom(
+        padding: EdgeInsets.zero,
+        backgroundColor: Colors.transparent,
+        shadowColor: Colors.transparent,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(radius),
         ),
+      ),
+
+      child: Ink(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(radius),
+
+          gradient: LinearGradient(
+            colors: colors,
+          ),
+        ),
+
         child: Center(
-          child: AnimatedSwitcher(
-            duration: const Duration(milliseconds: 300),
-            child: isLoading
-                ? Row(
-              key: const ValueKey("loading"),
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const SizedBox(
-                  height: 18,
-                  width: 18,
-                  child: CircularProgressIndicator(
-                    strokeWidth: 2,
-                    valueColor:
-                    AlwaysStoppedAnimation<Color>(Colors.white),
-                  ),
-                ),
-               spaceWidth( 10),
-                Text(
-                  loadingText,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ],
-            )
-                : Text(
-              text,
-              key: const ValueKey("text"),
-              style: const TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-              ),
+          child: isLoading
+              ? const SizedBox(
+            width: 24,
+            height: 24,
+
+            child: CircularProgressIndicator(
+              color: Colors.white,
+              strokeWidth: 2,
             ),
+          )
+              : Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (icon != null) ...[
+                Icon(icon, color: Colors.white,),
+                const SizedBox(width: 10),
+              ],
+
+              Text(
+                text,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 17,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
           ),
         ),
       ),
-    );
-  }
+    ),
+  );
+}
+
+Widget socialButton({required String icon, required String text}) {
+  return Container(
+    height: 54,
+
+    decoration: BoxDecoration(
+      color: Colors.white.withOpacity(0.9),
+
+      borderRadius: BorderRadius.circular(16),
+
+      border: Border.all(color: Colors.white),
+    ),
+
+    child: Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+
+      children: [
+        Text(icon, style: const TextStyle(fontSize: 18)),
+
+        const SizedBox(width: 8),
+
+        Text(text, style: const TextStyle(fontWeight: FontWeight.w600)),
+      ],
+    ),
+  );
 }

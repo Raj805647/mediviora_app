@@ -9,21 +9,13 @@ class RouteNames {
   static const String bottomNavigationScreen = "/bottomNavigationScreen";
   static const String homeScreen = "/homeScreen";
   static const String profileScreen = '/profileScreen';
-  static const String addProductScreen = '/addProductScreen';
-  static const String addProductDetailsScreen = '/addProductDetailsScreen';
-  static const String portfolioScreen = '/portfolioScreen';
-  static const String productDetailScreen = '/productDetailScreen';
-  static const String calendarScreen = '/calendarScreen';
-  static const String kycScreen = '/kycScreen';
-  static const String productScreen = '/productScreen';
-  static const String formSubmitDetailsScreen = '/formSubmitDetailsScreen';
+  static const String exploreScreen = '/exploreScreen';
+  static const String aiScreen = '/aiScreen';
+  static const String scheduleScreen = '/scheduleScreen';
+  static const String doctorProfileDetailsScreen = '/doctorProfileDetailsScreen';
+  static const String hospitalDetailsScreen = '/hospitalDetailsScreen';
+  static const String paymentScreen = '/paymentScreen';
+  static const String bookAppointmentScreen = '/bookAppointmentScreen';
 
-  // agent Screen
-  static const String agentBottomNavigationScreen = '/agentBottomNavigationScreen';
-  static const String agentDashBoardScreen = '/agentDashBoardScreen';
-  static const String agentEarningScreen = '/agentEarningScreen';
-  static const String agentPortfolioScreen = '/agentPortfolioScreen';
-  static const String agentReportScreen = '/agentReportScreen';
-  static const String agentMyProfileScreen = '/agentMyProfileScreen';
 
 }
